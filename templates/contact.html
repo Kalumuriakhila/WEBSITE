@@ -8,6 +8,7 @@
     <p class="auth-subtitle">Questions, model integration requests, or forensic support</p>
 
     <form method="POST" action="{{ url_for('contact') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div class="form-group">
         <label for="name">Full Name</label>
         <input

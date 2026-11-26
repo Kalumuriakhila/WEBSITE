@@ -1,23 +1,39 @@
 """SQLite database initialization and data access helpers."""
 
+from contextlib import contextmanager
 import os
 import sqlite3
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "deepfake_app.db")
 
 
 def get_connection() -> sqlite3.Connection:
-    """Return a SQLite connection with row_factory enabled."""
+    """Return a SQLite connection with row_factory and foreign keys enabled."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
+
+
+@contextmanager
+def _db_session() -> Iterator[sqlite3.Connection]:
+    """Context manager that commits/rolls back and always closes the SQLite connection."""
+    conn = get_connection()
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 def init_db() -> None:
     """Create application tables if they do not already exist."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         conn.executescript(
             """
             CREATE TABLE IF NOT EXISTS users (
@@ -55,6 +71,9 @@ def init_db() -> None:
                 message TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE INDEX IF NOT EXISTS idx_scans_user_created
+            ON scans (user_id, created_at DESC, id DESC);
             """
         )
 
@@ -67,7 +86,7 @@ def create_user(
     phone: str,
 ) -> int:
     """Insert a new user and return the created user ID."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         cursor = conn.execute(
             """
             INSERT INTO users (username, email, password_hash, gender, phone)
@@ -80,7 +99,7 @@ def create_user(
 
 def get_user_by_username_or_email(identifier: str) -> Optional[Dict[str, Any]]:
     """Fetch a user record by username or email."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         row = conn.execute(
             "SELECT * FROM users WHERE username = ? OR email = ?",
             (identifier, identifier),
@@ -90,7 +109,7 @@ def get_user_by_username_or_email(identifier: str) -> Optional[Dict[str, Any]]:
 
 def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
     """Fetch a user record by primary key."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         row = conn.execute(
             "SELECT id, username, email, gender, phone, created_at FROM users WHERE id = ?",
             (user_id,),
@@ -112,7 +131,7 @@ def create_scan(
     sample_frames_json: str,
 ) -> int:
     """Persist a video deepfake scan result and return its ID."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         cursor = conn.execute(
             """
             INSERT INTO scans (
@@ -141,7 +160,7 @@ def create_scan(
 
 def get_scan_by_id(scan_id: int, user_id: int) -> Optional[Dict[str, Any]]:
     """Fetch a scan belonging to the specified user."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         row = conn.execute(
             "SELECT * FROM scans WHERE id = ? AND user_id = ?",
             (scan_id, user_id),
@@ -151,7 +170,7 @@ def get_scan_by_id(scan_id: int, user_id: int) -> Optional[Dict[str, Any]]:
 
 def get_scans_for_user(user_id: int, limit: int = 10) -> List[Dict[str, Any]]:
     """Return recent scans for a user ordered newest-first."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         rows = conn.execute(
             """
             SELECT * FROM scans
@@ -166,7 +185,7 @@ def get_scans_for_user(user_id: int, limit: int = 10) -> List[Dict[str, Any]]:
 
 def save_contact_message(name: str, email: str, subject: str, message: str) -> int:
     """Store a Contact Us submission."""
-    with get_connection() as conn:
+    with _db_session() as conn:
         cursor = conn.execute(
             """
             INSERT INTO contact_messages (name, email, subject, message)

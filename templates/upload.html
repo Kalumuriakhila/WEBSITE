@@ -10,6 +10,7 @@
     </p>
 
     <form id="uploadForm" method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div id="dropZone" class="drop-zone">
         <p style="font-weight: 600; font-size: 1.02rem; margin-bottom: 0.35rem;">
           Drag &amp; drop a video here, or click to choose a file

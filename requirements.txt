@@ -2,5 +2,8 @@ Flask>=3.0.0
 Werkzeug>=3.0.0
 opencv-python>=4.10.0
 numpy>=2.0.0
-tensorflow>=2.18.0
 Pillow>=10.0.0
+flask-wtf>=1.2.0
+
+# Optional: Uncomment to enable custom Keras model inference
+# tensorflow>=2.18.0

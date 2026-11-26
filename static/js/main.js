@@ -1,4 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // -----------------------------------------------------------------------
+  // Mobile navigation toggle
+  // -----------------------------------------------------------------------
+  const navToggle = document.getElementById("navToggle");
+  const navLinks = document.getElementById("navLinks");
+
+  if (navToggle && navLinks) {
+    navToggle.addEventListener("click", () => {
+      const expanded = navToggle.getAttribute("aria-expanded") === "true";
+      navToggle.setAttribute("aria-expanded", String(!expanded));
+      navLinks.classList.toggle("open");
+    });
+  }
+
+  // -----------------------------------------------------------------------
+  // Flash messages — auto-dismiss after 5 seconds and manual close
+  // -----------------------------------------------------------------------
+  const alerts = document.querySelectorAll(".alert");
+  alerts.forEach((alert) => {
+    // Manual close button
+    const closeBtn = alert.querySelector(".alert-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => dismissAlert(alert));
+    }
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => dismissAlert(alert), 5000);
+  });
+
+  function dismissAlert(el) {
+    if (el.classList.contains("dismissing")) return;
+    el.classList.add("dismissing");
+    el.addEventListener("transitionend", () => el.remove(), { once: true });
+    // Fallback removal if transitionend doesn't fire
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 500);
+  }
+
+  // -----------------------------------------------------------------------
+  // Drag-and-drop upload zone
+  // -----------------------------------------------------------------------
   const dropZone = document.getElementById("dropZone");
   const fileInput = document.getElementById("videoInput");
   const fileNameLabel = document.getElementById("selectedFileName");

@@ -8,6 +8,7 @@
     <p class="auth-subtitle">Create your account to access deepfake video analysis</p>
 
     <form method="POST" action="{{ url_for('signup') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div class="form-group">
         <label for="username">Username</label>
         <input

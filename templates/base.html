@@ -14,7 +14,12 @@
         <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="brand-logo" />
         <span>Deepfake Detection</span>
       </a>
-      <nav class="nav-links">
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+      <nav class="nav-links" id="navLinks">
         <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Home</a>
         {% if current_user %}
           <a href="{{ url_for('upload') }}" class="nav-link {% if request.endpoint == 'upload' %}active{% endif %}">Upload Video</a>
@@ -35,7 +40,10 @@
       {% if messages %}
         <div class="flash-stack">
           {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
+            <div class="alert alert-{{ category }}" role="alert">
+              <span>{{ message }}</span>
+              <button type="button" class="alert-close" aria-label="Dismiss">&times;</button>
+            </div>
           {% endfor %}
         </div>
       {% endif %}
