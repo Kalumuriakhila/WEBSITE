@@ -1,5 +1,6 @@
 """Flask web application for Deepfake Video Detection."""
 
+import hashlib
 import json
 import logging
 import os
@@ -54,10 +55,22 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 _env_secret = os.environ.get("FLASK_SECRET_KEY")
 if not _env_secret:
-    _env_secret = secrets.token_hex(32)
-    logger.warning(
-        "FLASK_SECRET_KEY not set; using an ephemeral random key for this process."
-    )
+    if os.environ.get("VERCEL"):
+        # Derive a deterministic per-deployment key on Vercel so sessions/CSRF
+        # remain valid across serverless function instances.
+        seed = (
+            os.environ.get("VERCEL_DEPLOYMENT_ID", "")
+            + os.environ.get("VERCEL_URL", "vercel-deepfake-app")
+        )
+        _env_secret = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+        logger.warning(
+            "FLASK_SECRET_KEY not set on Vercel; using deployment-scoped fallback key."
+        )
+    else:
+        _env_secret = secrets.token_hex(32)
+        logger.warning(
+            "FLASK_SECRET_KEY not set; using an ephemeral random key for this process."
+        )
 app.config["SECRET_KEY"] = _env_secret
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["FRAMES_FOLDER"] = FRAMES_FOLDER
