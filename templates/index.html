@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Home — Deepfake Detection using Deep Learning and Flask{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Deepfake Detection using Deep Learning and Flask</h1>
+  <p>
+    Upload a video file to check whether it is authentic or manipulated. The system extracts
+    video frames, locates faces, and evaluates frame-level consistency to classify the video.
+  </p>
+  <div class="hero-actions">
+    {% if current_user %}
+      <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload Video</a>
+      <a href="{{ url_for('contact') }}" class="btn btn-outline">Contact Us</a>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+      <a href="{{ url_for('signup') }}" class="btn btn-outline">Signup</a>
+      <a href="{{ url_for('contact') }}" class="btn btn-outline">Contact Us</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="grid-3">
+  <div class="card feature-card">
+    <span class="step-num">1</span>
+    <h3>User Registration &amp; Login</h3>
+    <p>
+      Create an account and sign in securely to upload videos and keep track of your past checks.
+    </p>
+  </div>
+  <div class="card feature-card">
+    <span class="step-num">2</span>
+    <h3>Frame &amp; Face Processing</h3>
+    <p>
+      OpenCV reads frames across the video, detects facial regions, and checks for visual artifacts
+      and frame-to-frame consistency.
+    </p>
+  </div>
+  <div class="card feature-card">
+    <span class="step-num">3</span>
+    <h3>Prediction &amp; Video Playback</h3>
+    <p>
+      View the predicted class (REAL or FAKE), confidence percentage, and play back the uploaded
+      video right on the result page.
+    </p>
+  </div>
+</section>
+
+<section class="card founder-card">
+  <img
+    src="{{ url_for('static', filename='images/founder.jpg') }}"
+    alt="KALUMURI AKHILA"
+    class="founder-avatar"
+  />
+  <div class="founder-info">
+    <span class="founder-role">Founder &amp; Owner</span>
+    <h2>KALUMURI AKHILA</h2>
+    <p>
+      Built this Deepfake Detection web application using Python, Flask, OpenCV, and Deep Learning
+      to help verify whether a video is real or manipulated.
+    </p>
+  </div>
+</section>
+{% endblock %}

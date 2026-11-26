@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Prediction Result — Deepfake Detection{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 860px; margin: 0 auto;">
+  <h2 style="text-align: center; margin-bottom: 1rem;">Prediction Result</h2>
+
+  <div class="result-banner {% if scan.predicted_class == 'REAL' %}real{% else %}fake{% endif %}">
+    <h2>
+      The predicted class of the video is
+      <span style="color: {% if scan.predicted_class == 'REAL' %}#34d399{% else %}#fb7185{% endif %};">
+        {{ scan.predicted_class }}
+      </span>
+    </h2>
+    <p style="font-size: 1.05rem; color: var(--text-primary);">
+      Confidence: <strong>{{ scan.confidence }}%</strong> &bull; File: <code>{{ scan.original_filename }}</code>
+    </p>
+  </div>
+
+  <video class="video-player" controls preload="metadata">
+    <source src="{{ url_for('static', filename='uploads/' + scan.stored_filename) }}" />
+    Your browser does not support HTML5 video playback.
+  </video>
+
+  <div class="metrics-grid">
+    <div class="metric-box">
+      <div class="metric-value">{{ scan.frames_analyzed }}</div>
+      <div class="metric-label">Frames Analyzed</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">{{ scan.faces_detected }}</div>
+      <div class="metric-label">Faces Detected</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">{{ scan.temporal_score }}%</div>
+      <div class="metric-label">Temporal Consistency</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">{{ scan.artifact_score }}%</div>
+      <div class="metric-label">Artifact Anomaly</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">{{ scan.duration_seconds }}s</div>
+      <div class="metric-label">Video Duration</div>
+    </div>
+  </div>
+
+  {% if sample_frames %}
+    <div style="margin-top: 1.5rem;">
+      <h3 style="font-size: 1.05rem; margin-bottom: 0.4rem;">Sampled Forensic Frames</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">
+        Extracted frames with detected facial regions highlighted
+      </p>
+      <div class="frames-grid">
+        {% for frame_rel in sample_frames %}
+          <img
+            src="{{ url_for('static', filename=frame_rel) }}"
+            alt="Analyzed video frame"
+            class="frame-thumb"
+          />
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
+    <a href="{{ url_for('home') }}" class="btn btn-outline">Home</a>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload Another Video</a>
+  </div>
+</div>
+{% endblock %}

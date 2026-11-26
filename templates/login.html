@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Login — Deepfake Detection{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="card auth-card">
+    <h2>Login</h2>
+    <p class="auth-subtitle">Sign in to upload and verify videos</p>
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label for="username">Username or Email</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-control"
+          placeholder="Enter username or email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          placeholder="Enter password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">Login</button>
+    </form>
+
+    <div class="auth-footer">
+      Don&apos;t have an account? <a href="{{ url_for('signup') }}">Signup</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

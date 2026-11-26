@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Upload Video — Deepfake Detection{% endblock %}
+
+{% block content %}
+<div class="upload-layout">
+  <div class="card">
+    <h2 style="margin-bottom: 0.4rem;">Upload Video for Deepfake Detection</h2>
+    <p style="color: var(--text-secondary); font-size: 0.93rem; margin-bottom: 1.4rem;">
+      Supported formats: MP4, AVI, MOV, MKV, WEBM (max 100 MB).
+    </p>
+
+    <form id="uploadForm" method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+      <div id="dropZone" class="drop-zone">
+        <p style="font-weight: 600; font-size: 1.02rem; margin-bottom: 0.35rem;">
+          Drag &amp; drop a video here, or click to choose a file
+        </p>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+          Frames and facial regions will be extracted automatically
+        </p>
+        <input
+          type="file"
+          id="videoInput"
+          name="video"
+          accept=".mp4,.avi,.mov,.mkv,.webm,video/*"
+          required
+        />
+        <div id="selectedFileName" class="file-meta">No file chosen</div>
+      </div>
+
+      <button id="uploadBtn" type="submit" class="btn btn-primary btn-full">Upload</button>
+
+      <div id="processingBanner" class="processing-banner">
+        Running frame sampling, face detection, and forensic scoring... please wait.
+      </div>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.1rem;">
+      <a href="{{ url_for('logout') }}" style="font-size: 0.9rem; color: var(--text-secondary);">Logout</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom: 1rem;">Recent Scan History</h3>
+    {% if recent_scans %}
+      <div class="history-list">
+        {% for item in recent_scans %}
+          <div class="history-item">
+            <div style="min-width: 0;">
+              <div style="font-weight: 600; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ item.original_filename }}
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">
+                Confidence: {{ "%.2f"|format(item.confidence) }}% &bull; {{ item.frames_analyzed }} frames
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0;">
+              <span class="badge {% if item.predicted_class == 'REAL' %}badge-real{% else %}badge-fake{% endif %}">
+                {{ item.predicted_class }}
+              </span>
+              <a href="{{ url_for('result', scan_id=item.id) }}" class="btn btn-outline" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;">
+                View
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="color: var(--text-secondary); font-size: 0.92rem;">
+        No videos analyzed yet. Upload your first video on the left to generate a forensic report.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
