@@ -6,7 +6,8 @@ import sqlite3
 from typing import Any, Dict, Iterator, List, Optional
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "deepfake_app.db")
+DATA_DIR = "/tmp" if os.environ.get("VERCEL") else BASE_DIR
+DB_PATH = os.path.join(DATA_DIR, "deepfake_app.db")
 
 
 def get_connection() -> sqlite3.Connection:

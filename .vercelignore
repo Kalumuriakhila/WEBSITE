@@ -1,0 +1,14 @@
+.git/
+__pycache__/
+*.py[cod]
+*.db
+.venv/
+venv/
+tests.py
+*.md
+.env
+.env.example
+static/uploads/*
+static/frames/*
+!static/uploads/.gitkeep
+!static/frames/.gitkeep

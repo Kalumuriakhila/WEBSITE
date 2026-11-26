@@ -15,6 +15,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_from_directory,
     session,
     url_for,
 )
@@ -38,8 +39,9 @@ from detector import analyze_video
 # Configuration
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
-FRAMES_FOLDER = os.path.join(BASE_DIR, "static", "frames")
+WRITABLE_STATIC_DIR = "/tmp" if os.environ.get("VERCEL") else os.path.join(BASE_DIR, "static")
+UPLOAD_FOLDER = os.path.join(WRITABLE_STATIC_DIR, "uploads")
+FRAMES_FOLDER = os.path.join(WRITABLE_STATIC_DIR, "frames")
 ALLOWED_EXTENSIONS = {"mp4", "avi", "mov", "mkv", "webm"}
 
 # Logging
@@ -344,6 +346,18 @@ def upload():
 
     recent_scans = get_scans_for_user(user_id, limit=8)
     return render_template("upload.html", recent_scans=recent_scans)
+
+
+@app.route("/static/uploads/<path:filename>")
+def uploaded_file(filename: str):
+    """Serve uploaded videos from UPLOAD_FOLDER (supports /tmp on Vercel)."""
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+
+@app.route("/static/frames/<path:filename>")
+def frame_file(filename: str):
+    """Serve extracted frame thumbnails from FRAMES_FOLDER (supports /tmp on Vercel)."""
+    return send_from_directory(app.config["FRAMES_FOLDER"], filename)
 
 
 @app.route("/result/<int:scan_id>")
